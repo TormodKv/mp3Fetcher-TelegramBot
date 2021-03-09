@@ -9,7 +9,7 @@ import re
 def start(update, context):
     standardizeQuality(context)
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Just write the name of the song you want me to send you! You can also change the quality with the /quality command")
+                             text="Just write the name of the song you want me to send you! \nChange the quality with the /quality command. \nView Current quality with the /settings command")
 
 
 def unknown(update, context):
@@ -24,6 +24,7 @@ def settings(update, context):
 
 
 def getSong(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Loading...")
     standardizeQuality(context)
     message: str = update.message.text
     error = False
@@ -33,6 +34,7 @@ def getSong(update, context):
 
         mp3 = fetcher.download(video[0], context.user_data[0])
         if mp3 != "":
+            context.bot.delete_message(chat_id=update.effective_chat.id, message_id=update.message.message_id + 1)
             context.bot.send_audio(chat_id=update.effective_chat.id, audio=mp3, title=video[1], performer=video[2])
             print("Successfully sent song")
         else:
