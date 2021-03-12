@@ -26,15 +26,17 @@ def fetch(searchWord):
         return ""
 
 
-
-def download(videoId, quality):
+def download(videoId, quality, onlyLink = False):
     try:
         html = requests.get(youtubeDownloadRoot + str(videoId)).text
         linkList = re.findall('(?<=href=")(.*)(?=" class)', html)
         for link in linkList:
             if str(link).__contains__('mp3/{}'.format(quality)):
-                mp3 = requests.get(link).content
-                return mp3
+                if onlyLink:
+                    return str(link)
+                else:
+                    mp3 = requests.get(link).content
+                    return mp3
         return ""
     except:
         return ""

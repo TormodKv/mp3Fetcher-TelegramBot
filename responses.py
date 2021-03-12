@@ -13,8 +13,12 @@ def start(update, context):
 
 
 def unknown(update, context):
+    settings(update, context)
+
+
+def debug(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Change quality with /quality. Find song by just typing the name of the song")
+                             text="Chat ID = {0}\n ".format(update.effective_chat.id))
 
 
 def settings(update, context):
@@ -35,7 +39,7 @@ def getSong(update, context):
         mp3 = fetcher.download(video[0], context.user_data[0])
         if mp3 != "":
             context.bot.delete_message(chat_id=update.effective_chat.id, message_id=update.message.message_id + 1)
-            context.bot.send_audio(chat_id=update.effective_chat.id, audio=mp3, title=video[1], performer=video[2])
+            context.bot.send_audio(chat_id=update.effective_chat.id, audio=mp3, title=video[1], performer=video[2], filename=video[1] + '.mp3')
             print("Successfully sent song")
         else:
             error = True
@@ -50,15 +54,23 @@ def getSong(update, context):
 
 def inline_response(update, context):
     query = update.inline_query.query
-    if not query:
+    standardizeQuality(context)
+    if query == "":
         return
+
+    video = fetcher.fetch(query)
+    if not video:
+        video = ["Error", "Error", "Error"]
+        url = "Error"
+    else:
+        url = fetcher.download(video[0], context.user_data[0], True)
 
     results = list()
     results.append(
         InlineQueryResultArticle(
             id=query.upper(),
-            title='Get Song',
-            input_message_content=InputTextMessageContent(query.upper())
+            title=video[1],
+            input_message_content=InputTextMessageContent(url)
         )
     )
 
@@ -93,6 +105,7 @@ def callBackResponse(update, context):
 
 def standardizeQuality(context):
     try:
-        quality = context.user_data[0]
+        if context.user_data[0] != "":
+            return
     except:
         context.user_data[0] = '128'
