@@ -1,2 +1,0 @@
-youtubeKEY="YOUR KEY HERE"
-telegramKEY="YOUR KEY HERE"
